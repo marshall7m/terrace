@@ -10,12 +10,13 @@ function usage {
     echo " "
     echo "Commands without arguments:"
     echo "-h, --help                shows help message"
-    echo "exec                      Execs into running container in new terminal"
     echo " "
     echo "Commands with arguments:"
-    echo "static-check                 <ARGS>    Runs selected pre-commit hooks"
-    echo "plan <ARGS>  Infers binary (terraform|terragrunt) given the input path and runs input command"
-    echo "apply <ARGS>  Infers binary (terraform|terragrunt) given the input path and runs input command"
+    echo "static-check        <ARGS>    Runs selected pre-commit hooks"
+    echo "deploy              <ARGS>    Runs Terragrunt or Terraform commands"
+    echo "--command   Runs the command with the inferred binary (terraform|terragrunt) and version"
+    echo "--path        Relative path to target directory"
+    echo "--"
     exit 0
 }
 
@@ -26,15 +27,15 @@ while test $# -gt 0; do
       ;;
     static-check)
       . "$DIR/static_check.sh"
-      usage
       check_deps
       shift
       if test $# -gt 0; then
         case "$1" in 
+          -h|--help)
+            usage
+            ;;
           all)
-            shift
-            run 
-            ${cmd[@]}
+            run "all" $2
             ;;
         esac
       else
@@ -42,6 +43,38 @@ while test $# -gt 0; do
         exit 1
       fi
       ;;
+    deploy)
+      . "$DIR/deploy.sh"
+      shift
+    if test $# -gt 0; then
+      case "$1" in 
+        -h|--help)
+          usage
+          ;;
+        -p|--path)
+          shift
+          export path=$1
+          shift
+          ;;
+        -c|--command)
+          shift
+          export command=$1
+          shift
+          ;;
+        -b|--binary)
+          shift
+          export binary=$1
+          shift
+          ;;
+        -v|--version)
+          shift
+          export version=$1
+          shift
+          ;;
+      esac
+      run $binary $version $path $command
+    fi
+    ;;
     *)
       echo "Argument is invalid, run terrace --help for valid arguments"
       break

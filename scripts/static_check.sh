@@ -1,11 +1,9 @@
 function usage {
     echo "Usage for command: static-check"
-    echo "usage: terrace static-check [FLAGS] static-check [--<EXTRA_ARGS> ]"
+    echo "usage: terrace static-check [STATIC_CHECK] [FLAGS]"
     echo " "
-    echo "Commands without arguments:"
-    echo "-h, --help                        shows this help message"
-    echo "Commands with arguments:"
-    echo "<static-check> Options: (credit: https://github.com/gruntwork-io/pre-commit/blob/v0.1.12/.pre-commit-hooks.yaml)"
+    echo "[STATIC_CHECK]: (credit: https://github.com/gruntwork-io/pre-commit/blob/v0.1.12/.pre-commit-hooks.yaml)"
+    printf "\t all                          Runs all static-checks"
     printf "\t terraform-fmt                Rewrites all Terraform configuration files to a canonical format"         
     printf "\t terraform-validate           Validates all Terraform configuration files"
     printf "\t tflint                       Linter for Terraform source code"
@@ -17,16 +15,18 @@ function usage {
     printf "\t helmlint                     Run helm lint, a linter for helm charts"
     printf "\t markdown-link-check          Run markdown-link-check to check all the relative and absolute links in markdown docs."
     printf "\t check-terratest-skip-env     Check all go source files for any uncommented os.Setenv calls setting a terratest SKIP environment."
-    echo "<static-check> Flags:"
-    echo "--<EXTRA_ARGS>                    Any additional pre-commit flags to run with associated <static-check>"
+    echo ""
+    echo "[FLAGS]:"
+    echo "-h, --help                        Shows this help message"
+    echo "--<EXTRA_ARGS>                    Any additional pre-commit flags to run with associated [STATIC_CHECK]"
     exit 0
 }
 
 function run {
-  local -r check="$1"
-  local -r additional_args="$2"
+  local -r static_check="$1"
+  local -r extra_args="$2"
   
-  pre-commit run $check $additional_args
+  pre-commit run $static_check $extra_args
   exit 0
 }
 

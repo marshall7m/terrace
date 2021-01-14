@@ -1,33 +1,32 @@
-FROM alpine:3.12.3
+FROM python:3.9-slim-buster
 
-RUN apk add -q --no-cache --virtual .build_deps sudo wget py-pip \
-    && apk add -q --no-cache git openssh bash \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git wget bash unzip apt-utils \
     && git config --global advice.detachedHead false \
-    && pip install --ignore-installed pre-commit \
-    && apk del .build_deps
+    && apt-get purge -y --auto-remove \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install pre-commit pytest terraenv
 
-ARG TFENV_VERSION=v2.0.0
-ARG TFLINT_VERSION=v0.23.0
-ARG TFSEC_VERSION=v0.36.11
-ARG TFDOCS_VERSION=v0.10.1
-RUN wget -q -O /tmp/tfenv.zip https://github.com/tfutils/tfenv/archive/${TFENV_VERSION}.zip \
-    && unzip -q /tmp/tfenv \
-    && mv $(unzip -qql /tmp/tfenv.zip | head -n1 | tr -s ' ' | cut -d' ' -f5-) /usr/local/bin/.tfenv \
-    && wget -q -O /tmp/tflint.zip https://github.com/terraform-linters/tflint/releases/download/${TFLINT_VERSION}/tflint_linux_amd64.zip \
+ARG TERRAFORM_VERSION=0.14.4
+ARG TERRAGRUNT_VERSION=0.27.1
+ARG TFLINT_VERSION=0.23.0
+ARG TFSEC_VERSION=0.36.11
+ARG TFDOCS_VERSION=0.10.1
+
+RUN wget -q -O /tmp/terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
+    && unzip -q /tmp/terraform.zip \
+    && mv $(unzip -qql /tmp/terraform.zip | head -n1 | tr -s ' ' | cut -d' ' -f5-) /usr/local/bin/ \
+    && wget -q -O /usr/local/bin/terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64 \
+    && wget -q -O /tmp/tflint.zip https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/tflint_linux_amd64.zip \
     && unzip -q /tmp/tflint.zip \
     && mv $(unzip -qql /tmp/tflint.zip | head -n1 | tr -s ' ' | cut -d' ' -f5-) /usr/local/bin/ \
-    && chmod u+x /usr/local/bin/tflint \
-    && wget -q -O /usr/local/bin/tfsec https://github.com/tfsec/tfsec/releases/download/${TFSEC_VERSION}/tfsec-linux-amd64 \
-    && chmod u+x /usr/local/bin/tfsec \
-    && wget -q -O /usr/local/bin/tfdocs https://github.com/terraform-docs/terraform-docs/releases/download/${TFDOCS_VERSION}/terraform-docs-${TFDOCS_VERSION}-linux-amd64 \
-    chmod u+x /usr/local/bin/tfdocs
+    && wget -q -O /usr/local/bin/tfsec https://github.com/tfsec/tfsec/releases/download/v${TFSEC_VERSION}/tfsec-linux-amd64 \
+    && wget -q -O /usr/local/bin/terraform-docs https://github.com/terraform-docs/terraform-docs/releases/download/v${TFDOCS_VERSION}/terraform-docs-v${TFDOCS_VERSION}-linux-amd64 \
+    && chmod u+x /usr/local/bin/*
 
-ENV PATH "/usr/local/bin/.tfenv/bin:$PATH"
-RUN rm /tmp/*
 ENV HOME /opt/terrace
 RUN mkdir -p $HOME
 WORKDIR $HOME
 
-COPY ./scripts/entrypoint.sh /scripts/entrypoint.sh
-ENTRYPOINT [ "/bin/sh", "/scripts/entrypoint.sh" ]
-CMD [ "/bin/sh" ]
+COPY ./scripts/ /scripts/
+ENTRYPOINT [ "/bin/bash", "/scripts/entrypoint.sh" ]

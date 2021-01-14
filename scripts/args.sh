@@ -4,18 +4,19 @@ DIR="${BASH_SOURCE%/*}"
 if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
 
 function usage {
-    echo "$package - Runs pre-commit hooks, (Terraform|Terragrunt) commands, and Terratests"
-    echo " "
-    echo "usage: $package [COMMAND] [FLAGS]"
-    echo " "
-    echo "Global Flags: (can be used after binary or after [COMMAND])"
-    echo "-h, --help                shows help message"
-    echo " "
-    echo "[COMMAND]:"
-    echo "static-check        Runs selected pre-commit hooks"
-    echo "test                Runs selected test (terratest/pytest)"
-    echo "deploy              Runs Terragrunt or Terraform commands"
-    exit 0
+  cat << EOF
+$package - Runs pre-commit hooks, (Terraform|Terragrunt) commands, and Terratests
+usage: $package [COMMAND] [FLAGS]
+
+Global Flags: (can be used after binary or after [COMMAND])
+-h, --help                shows help message
+
+[COMMAND]:
+static-check        Runs selected pre-commit hooks
+test                Runs selected test (terratest/pytest)
+deploy              Runs Terragrunt or Terraform commands
+EOF
+  exit 0
 }
 
 while test $# -gt 0; do
@@ -25,7 +26,6 @@ while test $# -gt 0; do
       ;;
     static-check)
       . "$DIR/static_check.sh"
-      check_deps
       shift
       if test $# -gt 0; then
         case "$1" in 
@@ -34,6 +34,7 @@ while test $# -gt 0; do
             ;;
           all)
             shift
+            check_deps
             run $@
             ;;
         esac

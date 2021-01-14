@@ -1,14 +1,17 @@
 function usage {
-    echo "Runs Terragrunt or Terraform commands with associated directory"
-    echo "usage: terrace deploy [FLAGS]"
-    echo " "
-    echo "[FLAGS]:"         
-    echo "-h, --help                Show this help message"    
-    echo "-b, --binary              Binary to run command with (terragrunt|terraform)"
-    echo "-v, --version             Binary version to install/use"
-    echo "-p, --path                Relative path to target directory (defaults to cwd)"
-    echo "-c, --command             Command to run with binary"
-    exit 0
+    cat << EOF
+Runs Terragrunt or Terraform commands with associated directory
+
+usage: terrace deploy [FLAGS]
+
+[FLAGS]:
+-h, --help                Show this help message
+-b, --binary              Binary to run command with (terragrunt|terraform)
+-v, --version             Binary version to install/use
+-p, --path                Relative path to target directory (defaults to cwd)
+-c, --command             Command to run with binary
+EOF
+exit 0
 }
 
 function install {

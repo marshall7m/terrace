@@ -1,0 +1,1 @@
+docker build -t marshall7m/terrace:latest .

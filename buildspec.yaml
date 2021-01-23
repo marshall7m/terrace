@@ -3,14 +3,13 @@ phases:
     pre_build:
       commands:
         - echo Logging into Amazon ECR...
-        - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPO_URL
     build:
       commands:
         - BRANCH_NAME=$(echo $CODEBUILD_WEBHOOK_HEAD_REF | cut -d'/' -f 3)
-        - echo $CODEBUILD_WEBHOOK_TRIGGER
         - export IMAGE_TAG=test
         - echo Build started on `date`
-        - bash build.sh
+        - docker build -t $ECR_REPO_URL:$TAG .
     post_build:
       commands:
         - echo Build completed on `date`

@@ -25,15 +25,23 @@ check-terratest-skip-env     Check all go source files for any uncommented os.Se
 EOF
   exit 0
 }
+checks=(all terraform-fmt terraform-validate tflint shellcheck gofmt goimports golint yapf helmlint markdown-link-check check-terratest-skip-env)
 
-function run {
+function run_check {
   local -r static_check="$1"
   local -r extra_args="$2"
+
+  if [[ ! " ${checks[@]} " =~ " ${static_check} " ]]; then
+    echo "Invalid static-check: $static_check"
+    echo "Valid static-checks:"
+    for check in ${checks[@]}; do 
+      printf "\t$check\n" 
+    done
+    exit 1
+  fi
+
+  pre-commit install
   
   pre-commit run $static_check $extra_args
   exit 0
-}
-
-function check_deps {
-    pre-commit install
 }

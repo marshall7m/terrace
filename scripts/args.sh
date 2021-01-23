@@ -32,10 +32,8 @@ while test $# -gt 0; do
           -h|--help)
             usage
             ;;
-          all)
-            shift
-            check_deps
-            run $@
+          *)
+            run_check $@
             ;;
         esac
       else
@@ -46,40 +44,45 @@ while test $# -gt 0; do
     deploy)
       . "$DIR/deploy.sh"
       shift
-    while test $# -gt 0; do
-      if test $# -gt 0; then
-        case "$1" in 
-          -h|--help)
-            usage
-            ;;
-          -p|--path)
-            shift
-            export path=$1
-            shift
-            ;;
-          -c|--command)
-            shift
-            export command=$1
-            shift
-            ;;
-          -b|--binary)
-            shift
-            export binary=$1
-            shift
-            ;;
-          -v|--version)
-            shift
-            export version=$1
-            shift
-            ;;
-        esac
-      fi
-    done
+      while test $# -gt 0; do
+        if test $# -gt 0; then
+          case "$1" in 
+            -h|--help)
+              usage
+              ;;
+            -p|--path)
+              shift
+              export path=$1
+              shift
+              ;;
+            -c|--command)
+              shift
+              export command=$1
+              shift
+              ;;
+            -b|--binary)
+              shift
+              export binary=$1
+              shift
+              ;;
+            -v|--version)
+              shift
+              export version=$1
+              shift
+              ;;
+          esac
+        fi
+      done
 
     if [ -z "$binary" ]; then
       binary=$(infer_binary $path) || exit
     fi
     
+    if [ -z "$version" ]; then
+      version=$(infer_version $binary $path) || exit 1
+    fi 
+    
+    echo "Terraform Version: $version"
     install $binary $version
 
     run $binary $path $command

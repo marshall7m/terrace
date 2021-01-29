@@ -9,7 +9,7 @@ usage: terrace deploy [FLAGS]
 -b, --binary              Binary to run command with (terragrunt|terraform)
 -v, --version             Binary version to install/use
 -p, --path                Relative path to target directory (defaults to cwd)
--c, --command             Command to run with binary
+-c, --command             Command to run with binary (include additional command flags)
 
 Example use:
 
@@ -21,47 +21,62 @@ EOF
 exit 0
 }
 
-function install {
-    local -r binary="$1"
-    local -r version=${2:-"latest"}
-    
-    terraenv $binary use $version || terraenv $binary install $version
-}
+function main {
+    parser $@
+ 
+    local -r path="${path:-$(PWD)}"
 
-
-function infer_version {
-    local -r binary="$1"
-    local -r path="${2:-$(PWD)}"
-    export TG_PATH=$path
-    if [ $binary == "terragrunt" ]; then
-        abs_tf_path=$(python -c """
-import ast
-import subprocess
-import os
-
-if os.path.isdir(os.environ['TG_PATH']): 
-    config = subprocess.check_output(
-        'cd {}; terragrunt terragrunt-info'.format(os.environ['TG_PATH']), 
-        shell=True
-    )
-    config = ast.literal_eval(config.decode('utf-8'))
-    abs_tf_path = '~{}'.format(config['WorkingDir'])
-    print(abs_tf_path)
-else:
-    print('Invalid relative Terragrunt path: {}'.format(os.environ['TG_PATH']))
-""" )
-    else
-        abs_tf_path=$(cd $path; pwd)
+    if [ -z "$binary" ]; then
+        binary=$(infer_binary $path) || exit
     fi
-    echo $(find_min_required "$abs_tf_path")
+
+    cd $path
+    if [$binary == "terraform"]; then
+        if [ -z "$version" ]; then
+            tfenv use min-required || tfenv install min-required && tfenv use min-required
+        else
+            tfenv use $version || tfenv install $version && tfenv use $version
+        fi
+    fi
+
+    $binary $command
+    cd - 1>/dev/null
 }
 
-get_min_required() {
-  local -r root="$1"
+function parser {
+    while test $# -gt 0; do
+        if test $# -gt 0; then
+            case "$1" in 
+            -h|--help)
+                usage
+                ;;
+            -p|--path)
+                shift
+                export path=$1
+                shift
+                ;;
+            -c|--command)
+                shift
+                export command=$1
+                shift
+                ;;
+            -b|--binary)
+                shift
+                export binary=$1
+                shift
+                ;;
+            -v|--version)
+                shift
+                export version=$1
+                shift
+                ;;
+            esac
+        fi
+        done
 }
 
 function infer_binary {
-    local -r path="${1:-$(PWD)}"
+    local -r 
 
     if ls ${path}/*.hcl &>/dev/null; then
         echo "terragrunt"
@@ -82,12 +97,6 @@ function infer_binary {
     fi
 }
 
-function run {
-    local -r binary="$1"
-    local -r path="$2"
-    local -r command="$3"
-    
-    cd $path
-    $binary $command
-    cd - 1>/dev/null
-}
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

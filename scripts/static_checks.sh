@@ -25,11 +25,16 @@ check-terratest-skip-env     Check all go source files for any uncommented os.Se
 EOF
   exit 0
 }
-checks=(all terraform-fmt terraform-validate tflint shellcheck gofmt goimports golint yapf helmlint markdown-link-check check-terratest-skip-env)
 
-function run_check {
+function main {
+  parser $@
+}
+
+
+function run_static_check {
   local -r static_check="$1"
   local -r extra_args="$2"
+  checks=(all terraform-fmt terraform-validate tflint shellcheck gofmt goimports golint yapf helmlint markdown-link-check check-terratest-skip-env)
 
   if [[ ! " ${checks[@]} " =~ " ${static_check} " ]]; then
     echo "Invalid static-check: $static_check"
@@ -45,3 +50,23 @@ function run_check {
   pre-commit run $static_check $extra_args
   exit 0
 }
+
+function parser {
+  if test $# -gt 0; then
+    case "$1" in 
+      -h|--help)
+        usage
+        ;;
+      *)
+        run_static_check $@
+        ;;
+    esac
+  else
+    echo "Hook is not defined"
+    exit 1
+  fi
+}
+  
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

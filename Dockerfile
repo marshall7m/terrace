@@ -6,21 +6,33 @@ ARG TFLINT_VERSION=0.23.0
 ARG TFSEC_VERSION=0.36.11
 ARG TFDOCS_VERSION=0.10.1
 
+ENV PIP_PACKAGES="tftest pre-commit pytest terraenv"
+ENV BUILD_PACKAGES="wget unzip"
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
 COPY install.sh /tmp/install.sh
 
-ENV BUILD_PACKAGES="wget unzip"
-RUN chmod u+x /tmp/install.sh \
+RUN python3 -m venv $VIRTUAL_ENV \
+    && chmod u+x /tmp/install.sh \
     && /tmp/install.sh
 
-FROM alpine:3.13.0
+FROM python:3.9-slim-buster
 
 COPY --from=build /usr/local/bin /usr/local/bin
+COPY --from=build /opt/venv /opt/venv
+
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV PATH="$VIRTUAL_ENV/lib/python3.9/site-packages:$PATH"
+
 ENV RUNTIME_PACKAGES="bash git"
 ENV HOME /opt/terrace
 WORKDIR $HOME
 COPY ./scripts ./scripts
 
-RUN apk add --no-cache $RUNTIME_PACKAGES \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends $RUNTIME_PACKAGES \
     && git config --global advice.detachedHead false \
     && mkdir -p $HOME
 

@@ -19,74 +19,28 @@ EOF
   exit 0
 }
 
+
 while test $# -gt 0; do
   case "$1" in
-    -h|--help)
+    ""|-h|--help)
       usage
       ;;
     static-check)
-      . "$DIR/static_check.sh"
       shift
-      if test $# -gt 0; then
-        case "$1" in 
-          -h|--help)
-            usage
-            ;;
-          *)
-            run_check $@
-            ;;
-        esac
-      else
-        echo "Hook is not defined"
-        exit 1
-      fi
+      . "$DIR/static_checks.sh"
+      main "$@"
       ;;
     deploy)
-      . "$DIR/deploy.sh"
       shift
-      while test $# -gt 0; do
-        if test $# -gt 0; then
-          case "$1" in 
-            -h|--help)
-              usage
-              ;;
-            -p|--path)
-              shift
-              export path=$1
-              shift
-              ;;
-            -c|--command)
-              shift
-              export command=$1
-              shift
-              ;;
-            -b|--binary)
-              shift
-              export binary=$1
-              shift
-              ;;
-            -v|--version)
-              shift
-              export version=$1
-              shift
-              ;;
-          esac
-        fi
-      done
-
-    if [ -z "$binary" ]; then
-      binary=$(infer_binary $path) || exit
-    fi
-    
-    if [ -z "$version" ]; then
-      version=$(infer_version $binary $path) || exit 1
-    fi 
-    
-    echo "Terraform Version: $version"
-    install $binary $version
-
-    run $binary $path $command
-    ;;
+      . "$DIR/deploy.sh"
+      main "$@"
+      ;;
+    test)
+      shift
+      . "$DIR/test.sh"
+      main "$@"
+      exit 0
+      ;;
     *)
       echo "Argument is invalid, run terrace --help for valid arguments"
       break

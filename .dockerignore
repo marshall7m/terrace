@@ -1,4 +1,7 @@
 /*
 /*/
-!/scripts/
+/.*
+/.*/
+!/.pre-commit-config.yaml
+!/scripts
 !/install.sh

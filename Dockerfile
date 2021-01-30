@@ -6,7 +6,7 @@ ARG TFLINT_VERSION=0.23.0
 ARG TFSEC_VERSION=0.36.11
 ARG TFDOCS_VERSION=0.10.1
 
-ENV PIP_PACKAGES="tftest pre-commit pytest terraenv"
+ENV PIP_PACKAGES="tftest pre-commit pytest cached-property terraenv boto3"
 ENV BUILD_PACKAGES="wget unzip"
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
@@ -29,11 +29,12 @@ ENV PATH="$VIRTUAL_ENV/lib/python3.9/site-packages:$PATH"
 ENV RUNTIME_PACKAGES="bash git"
 ENV HOME /opt/terrace
 WORKDIR $HOME
-COPY ./scripts ./scripts
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends $RUNTIME_PACKAGES \
-    && git config --global advice.detachedHead false \
-    && mkdir -p $HOME
+    && git config --global advice.detachedHead false
 
-ENTRYPOINT [ "/bin/bash", "./scripts/args.sh" ]
+COPY /scripts /scripts
+
+ENTRYPOINT [ "/bin/bash", "/scripts/entrypoint.sh" ]
+CMD ["--help"]

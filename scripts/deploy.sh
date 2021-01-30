@@ -72,7 +72,7 @@ function parser {
                 ;;
             esac
         fi
-        done
+    done
 }
 
 function infer_binary {

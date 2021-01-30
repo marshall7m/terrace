@@ -1,6 +1,7 @@
 function usage {
   cat << EOF
-Runs Pytest for given files"
+
+Runs Pytest for given files
 usage: terrace test [TARGET_PATHS] [FLAGS]
 
 [TARGET_PATHS]:                  Space separated list of directories or files to run pytest on

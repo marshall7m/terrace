@@ -7,9 +7,9 @@ phases:
     build:
       commands:
         - BRANCH_NAME=$(echo $CODEBUILD_WEBHOOK_HEAD_REF | cut -d'/' -f 3)
-        - export IMAGE_TAG=test
+        - export IMAGE_TAG=$CODEBUILD_BUILD_NUMBER-$CODEBUILD_RESOLVED_SOURCE_VERSION
         - echo Build started on `date`
-        - docker build -t $ECR_REPO_URL:$TAG .
+        - docker build -t $ECR_REPO_URL:$IMAGE_TAG .
     post_build:
       commands:
         - echo Build completed on `date`

@@ -1,0 +1,6 @@
+tftest==1.5.4
+pre-commit==2.9.3
+pytest==6.2.2
+cached-property==1.5.2
+terraenv==0.12.0
+boto3==1.16.46

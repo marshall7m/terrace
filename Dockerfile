@@ -6,12 +6,12 @@ ARG TFLINT_VERSION=0.23.0
 ARG TFSEC_VERSION=0.36.11
 ARG TFDOCS_VERSION=0.10.1
 
-ENV PIP_PACKAGES="tftest pre-commit pytest cached-property terraenv boto3"
 ENV BUILD_PACKAGES="wget unzip"
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 COPY install.sh /tmp/install.sh
+COPY requirements.txt requirements.txt
 
 RUN python3 -m venv $VIRTUAL_ENV \
     && chmod u+x /tmp/install.sh \

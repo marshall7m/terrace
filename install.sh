@@ -1,6 +1,6 @@
 apt-get update
 apt-get install -y $BUILD_PACKAGES --no-install-recommends 
- pip install --upgrade --no-cache-dir pip $PIP_PACKAGES
+ pip install --upgrade pip --upgrade --no-cache-dir -r requirements.txt
 wget -q -O /tmp/terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 unzip -q /tmp/terraform.zip
 mv $(unzip -qql /tmp/terraform.zip | head -n1 | tr -s ' ' | cut -d' ' -f5-) /usr/local/bin/

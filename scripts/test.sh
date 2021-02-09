@@ -14,7 +14,8 @@ usage: terrace test [TARGET_PATHS] [FLAGS]
                           test_xxxx.py, .hcl, and/or .tf files
 --source-ref              Branch that the test will be runned on (default to current branch)
 --base-ref                Branch that the --source-ref branch will be compared to. Used to indentify
-                          which terraform module directories will be tested on. (default to master branch)
+                          which terraform module directories will be tested on. (default to remote 
+                          master branch)
 
 [EXTRA_ARGS]:             Any additional pytest flags (e.g --sw-skip, --fixtures-per-test)
 EOF
@@ -38,19 +39,20 @@ function parser {
             --source-ref)
               shift
               export SOURCE_REF="$1"
-              shift 2
+              shift
               ;;
             --base-ref)
+              shift
               export BASE_REF="$1"
-              shift 2
+              shift
               ;;
           esac
         fi
         shift
         ;;
-      --head-test-filter)
+      --local-filter)
         shift
-        export HEAD_TEST_FILTER="$1"
+        export LOCAL_FILTER="$1"
         shift
         ;;
       *)
@@ -63,19 +65,23 @@ function parser {
   fi
 }
 
-function get_target_tests {
-  #root_git=$(git rev-parse --show-toplevel)
-
-  # new_top_dir=$(git ls-files -o --directory --no-empty-directory --exclude-standard | xargs -n 1 dirname | sed -E '/\/.*$|^\.\s?$/d' | uniq)
-  # new_all_dir=$(git ls-files -o --directory --no-empty-directory --exclude-standard | xargs -n 1 dirname | sed -E '^\.\s?$/d' | uniq)
-
-  # local -r SOURCE_REF=$1
-  local -r BASE_REF="${1:-master}"
+function get_target_tests {  
+  # defaults to remote master
+  local -r BASE_REF="${1:-refs/remotes/origin/master}"
+  # defaults to cwb
   local -r SOURCE_REF="${2:-$(git rev-parse --abbrev-ref HEAD)}"
 
   if [ -n "$CI_FILTER" ]; then
+    if [ -z "$(git show-ref refs/heads/$SOURCE_REF)" ]; then
+        echo "$SOURCE_REF branch doesn't exists locally" 1>&2
+        exit 1
+    fi
+    if [ -z "$(git show-ref $BASE_REF)" ]; then
+        echo "$BASE_REF branch doesn't exists remotely" 1>&2
+        exit 1
+    fi
     if [ "$SOURCE_REF" != "$BASE_REF" ]; then 
-      test=$(git diff --name-only "$BASE_REF".."$SOURCE_REF" | sed -E 's/\/.*$//g')
+      echo "$(git diff --name-only "$BASE_REF".."$SOURCE_REF" | egrep 'test_.+\.py$' | sed -E 's/\/.*$//g')"
       return
     else
       echo "--base-ref can not equal --source-ref" 1>&2
@@ -83,33 +89,36 @@ function get_target_tests {
     fi
   fi
 
-  if [ "$HEAD_TEST_FILTER" == "tests" ]; then 
-    echo "$(git diff --name-only | egrep 'test_.+\.py$')"
-    exit 0
-  fi
-
   changed_files=$(git diff --name-only)
   changed_top_dirs=$(echo "$changed_files" | sed -E 's/\/.*$//g')
 
   untracked_files=$(git status -u --porcelain | sed -E 's/\?\? //g')
-  untracked_top_dir=$(git status -u --porcelain | sed -E 's/\?\? //g' | xargs -n 1 dirname | sed -E 's/\/.*$//g' | sed -E '/^\.\s?$/d')
-  if [ "$HEAD_TEST_FILTER" == "all" ]; then 
+  untracked_top_dir=$(echo "$untracked_files" | egrep '\/test_.+\.py$|\/.+\.hcl$|\/.+\.tf$' | xargs -n 1 dirname | sed -E 's/\/.*$//g' | sed -E '/^\.\s?$/d')
+  if [ "$LOCAL_FILTER" == "all" ]; then 
     echo "$(printf "$changed_top_dirs\n$untracked_top_dir" | sort | uniq)"
-  elif [ "$HEAD_TEST_FILTER" == "terra" ]; then 
+    return
+  elif [ "$LOCAL_FILTER" == "terra" ]; then 
     echo "$(printf "$untracked_files\n$changed_files" | egrep '\/.+\.tf$|.+\.hcl$' | sed -E 's/\/.*$//g' | sort | uniq)"
+    return
+  elif [ "$LOCAL_FILTER" == "tests" ]; then 
+    echo "$(printf "$changed_files\n$untracked_files" | egrep '\/test_.+\.py$')"
+    return
   fi
 }
 
 
 function main {
-  parser $@
-
-  target_tests=$(get_target_tests) || exit
   #TODO: func for listing all cloud resources that are still running?
+  parser $@
+  
+  target_tests=$(get_target_tests $BASE_REF $SOURCE_REF) || exit
+  if [ -z "$target_tests" ]; then
+    echo "No test were detected with filter"
+    exit 1
+  fi
   echo "target dirs:"
   echo "$target_tests"
   target_tests=$(echo $target_tests | sed -E 's/\n/ /g')
-
   PYTEST_CMD="pytest $target_tests"
   echo "Running: $PYTEST_CMD"
   $PYTEST_CMD

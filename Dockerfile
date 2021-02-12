@@ -26,7 +26,7 @@ ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 ENV PATH="$VIRTUAL_ENV/lib/python3.9/site-packages:$PATH"
 
-ENV RUNTIME_PACKAGES="bash git"
+ENV RUNTIME_PACKAGES="bash git jq"
 ENV HOME /opt/terrace
 WORKDIR $HOME
 

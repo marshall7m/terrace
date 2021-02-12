@@ -6,7 +6,7 @@ usage: terrace static-check [FLAGS] [STATIC_CHECK] [EXTRA_ARGS]
  
 [STATIC_CHECK]: 
 all                          Runs all static-checks
-terraform-fmt                Rewrites all Terraform configuration files to a canonical format       
+terraform_fmt                Rewrites all Terraform configuration files to a canonical format       
 terraform-validate           Validates all Terraform configuration files
 tflint                       Linter for Terraform source code
 shellcheck                   Rewrites all Terragrunt configuration files to a canonical format
@@ -49,7 +49,7 @@ function parser {
           exit 0
           ;;
         *)
-          checks=(all terraform-fmt terraform-validate tflint shellcheck gofmt goimports golint yapf helmlint markdown-link-check check-terratest-skip-env)
+          checks=(all terraform_fmt terraform-validate tflint shellcheck gofmt goimports golint yapf helmlint markdown-link-check check-terratest-skip-env)
 
           if [[ ! " ${checks[@]} " =~ " $1 " ]]; then
             echo "Invalid static-check: $1"

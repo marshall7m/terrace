@@ -136,9 +136,25 @@ function get_target_tests {
   fi
 }
 
+function verify_role {
+  caller=$(aws sts get-caller-identity)
+  account_id=$(echo "$caller" | jq -r '.Account')
+  sandbox_accounts=(<sandbox_accounts>)
+  if [[ ! " ${sandbox_accounts[@]} " =~ " $account_id " ]]; then
+    echo "AWS account is an invalid testing account: $account_id"
+    echo "Assume role with a valid testing account ID:"
+    for id in ${sandbox_accounts[@]}; do 
+      printf "\t$id\n" 
+    done
+    exit 1
+  fi
+  echo "Verify Role: Success"
+}
 
 function main {
   #TODO: func for listing all cloud resources that are still running?
+  verify_role || exit
+
   parser $@ || exit
   target_tests=$(get_target_tests $BASE_REF $SOURCE_REF) || exit
   if [ -z "$target_tests" ]; then

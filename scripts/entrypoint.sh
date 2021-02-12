@@ -30,11 +30,13 @@ while test $# -gt 0; do
       shift
       . "$DIR/static_checks.sh"
       main "$@"
+      exit 0
       ;;
     deploy)
       shift
       . "$DIR/deploy.sh"
       main "$@"
+      exit 0
       ;;
     test)
       shift

@@ -28,39 +28,44 @@ EOF
 
 function main {
   parser $@
-}
-
-
-function run_static_check {
-  local -r static_check="$1"
-  local -r extra_args="$2"
-  checks=(all terraform-fmt terraform-validate tflint shellcheck gofmt goimports golint yapf helmlint markdown-link-check check-terratest-skip-env)
-
-  if [[ ! " ${checks[@]} " =~ " ${static_check} " ]]; then
-    echo "Invalid static-check: $static_check"
-    echo "Valid static-checks:"
-    for check in ${checks[@]}; do 
-      printf "\t$check\n" 
-    done
-    exit 1
-  fi
-
   pre-commit install
-  
-  pre-commit run $static_check $extra_args
-  exit 0
+    
+  PRE_COMMIT_CMD="pre-commit run $STATIC_CHECK $EXTRA_PRE_COMMIT_ARGS"
+  echo "Running $PRE_COMMIT_CMD"
+  $PRE_COMMIT_CMD
 }
 
 function parser {
+  static_checks=()
   if test $# -gt 0; then
-    case "$1" in 
-      -h|--help)
-        usage
-        ;;
-      *)
-        run_static_check $@
-        ;;
-    esac
+    while test $# -gt 0; do
+      case "$1" in 
+        -h|--help)
+          usage
+          ;;
+        --)
+          shift
+          export EXTRA_PRE_COMMIT_ARGS=$@
+          exit 0
+          ;;
+        *)
+          checks=(all terraform-fmt terraform-validate tflint shellcheck gofmt goimports golint yapf helmlint markdown-link-check check-terratest-skip-env)
+
+          if [[ ! " ${checks[@]} " =~ " $1 " ]]; then
+            echo "Invalid static-check: $1"
+            echo "Valid static-checks:"
+            for check in ${checks[@]}; do 
+              printf "\t$check\n" 
+            done
+            exit 1
+          fi
+          if [ "$1" != "all" ]; then
+            export STATIC_CHECK="$1"
+          fi
+          shift
+          ;;
+      esac
+    done
   else
     echo "Hook is not defined"
     exit 1

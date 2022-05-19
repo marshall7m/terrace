@@ -1,40 +1,54 @@
 FROM python:3.9-slim-buster AS build
-
-ARG TERRAFORM_VERSION=0.14.4
-ARG TERRAGRUNT_VERSION=0.27.1
 ARG TFLINT_VERSION=0.23.0
 ARG TFSEC_VERSION=0.36.11
 ARG TFDOCS_VERSION=0.10.1
+ARG GIT_CHGLOG_VERSION=0.14.2
+ARG SEMTAG_VERSION=0.1.1
+ARG GH_VERSION=2.2.0
+ARG TFENV_VERSION=2.2.2
+ARG TGENV_VERSION=0.0.3
 
-ENV BUILD_PACKAGES="wget unzip"
-ENV VIRTUAL_ENV=/opt/venv
+SHELL ["/bin/bash", "-c"]
+WORKDIR /src
+
+ENV VIRTUAL_ENV=/opt/base-venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 COPY install.sh /tmp/install.sh
-COPY requirements.txt requirements.txt
+COPY requirements.txt /tmp/requirements.txt
 
-RUN python3 -m venv $VIRTUAL_ENV \
-    && chmod u+x /tmp/install.sh \
-    && /tmp/install.sh
+RUN chmod u+x /tmp/install.sh \
+    && sh /tmp/install.sh
 
 FROM python:3.9-slim-buster
+ARG TERRAFORM_VERSION=latest
+ARG TERRAGRUNT_VERSION=latest
 
-COPY --from=build /usr/local/bin /usr/local/bin
-COPY --from=build /opt/venv /opt/venv
+# sets default shell to /bin/bash so `source` cmd is available
+SHELL ["/bin/bash", "-c"]
+WORKDIR /src/
 
-ENV VIRTUAL_ENV=/opt/venv
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-ENV PATH="$VIRTUAL_ENV/lib/python3.9/site-packages:$PATH"
+ENV VIRTUAL_ENV=/opt/base-venv
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PATH="/usr/local/.tfenv/bin:/usr/local/.tgenv/bin:$PATH"
+# uses virtual env instead of system-wide packages
+ENV PATH="$VIRTUAL_ENV/bin:$VIRTUAL_ENV/lib/python3.9/site-packages:$PATH"
 
-ENV RUNTIME_PACKAGES="bash git jq"
-ENV HOME /opt/terrace
-WORKDIR $HOME
+COPY --from=build /usr/local /usr/local
+COPY --from=build $VIRTUAL_ENV $VIRTUAL_ENV
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends $RUNTIME_PACKAGES \
-    && git config --global advice.detachedHead false
+RUN apt-get -y update \
+    && apt-get install -y nodejs lbzip2 \
+    && apt-get install -y --no-install-recommends bash git curl unzip \
+    && ln -sf python3 /usr/local/bin/python \
+    && git config --global advice.detachedHead false \
+    && tfenv install ${TERRAFORM_VERSION} \
+    && tfenv use ${TERRAFORM_VERSION} \
+    && tgenv install ${TERRAGRUNT_VERSION} \
+    && tgenv use ${TERRAGRUNT_VERSION}
 
-COPY /scripts /scripts
+COPY entrypoint.sh /tmp/entrypoint.sh
 
-ENTRYPOINT [ "/bin/bash", "/scripts/entrypoint.sh" ]
-CMD ["--help"]
+ENTRYPOINT ["bash", "/tmp/entrypoint.sh"]

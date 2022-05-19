@@ -1,0 +1,17 @@
+terraform.tfstate*
+*.terraform*
+*.terragrunt-cache*
+.DS_Store
+*.cache*
+__pycache__
+.wget-hsts
+.bash_history
+*.zip*
+*deps/
+*tmp*
+/node_modules
+/package-lock.json
+/yarn.lock
+/yarn-error.log
+build/*
+/*.egg-info

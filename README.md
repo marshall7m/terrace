@@ -2,27 +2,19 @@
 
 ## Description
 
-- Allows users to test, validate and deploy Terraform configurations
+Docker image used for Terraform module testing. The image is stored within the GitHub container registry.
 
 ## Built-in
-- Terraform
-- Terragrunt
-- Sentinel
-
-# Checks
-- tflint
-- tfsec
-
-## Flags
-
-## Features
-- Infers which binary to use (terragrunt vs. terraform via the target dir)
-- Infers which binary version to use via tfenv package
-- Loads credentials via Vault or env vars or volumes
-- Run tests via python helper tests or terratest test?
+- [tfenv](https://github.com/tfutils/tfenv)
+- [tgenv](https://github.com/cunymatthieu/tgenv)
+- [terraform](https://github.com/hashicorp/terraform) (version: latest)
+- [terragrunt](https://github.com/gruntwork-io/terragrunt) (version: latest)
+- [semtag](https://github.com/nico2sh/semtag)
+- [gh](https://cli.github.com/)
+- [git](https://github.com/git/git)
+- [tflint](https://github.com/terraform-linters/tflint)
+- [tfsec](https://github.com/aquasecurity/tfsec)
+- [terraform-docs](https://github.com/terraform-docs/terraform-docs)
 
 
-TODO: 
-
-- Build Dockerfile
-- create pre-commit feature
+See `requirements.txt` for PyPi packages installed via pip

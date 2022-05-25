@@ -6,7 +6,7 @@ mock==4.0.3
 pytest-mock==3.6.1
 pytest-dependency==0.5.1
 timeout-decorator==0.5.0
-git+https://github.com/marshall7m/pytest-terra-fixt@v0.3.3#egg=pytest-terra-fixt
+pytest-terra-fixt-marshall7m==0.4.0
 
 tftest==1.6.2
 boto3==1.20.5

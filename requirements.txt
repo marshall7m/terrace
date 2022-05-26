@@ -6,7 +6,7 @@ mock==4.0.3
 pytest-mock==3.6.1
 pytest-dependency==0.5.1
 timeout-decorator==0.5.0
-pytest-terra-fixt==0.4.0
+pytest-terra-fixt==0.4.1
 
 tftest==1.6.2
 boto3==1.20.5

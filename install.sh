@@ -1,4 +1,4 @@
-apt-get update
+#!/bin/bash
 apt-get -y update
 apt-get install -y aptitude
 aptitude install -y software-properties-common build-essential wget unzip git

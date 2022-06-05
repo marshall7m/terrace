@@ -41,7 +41,7 @@ COPY --from=build $VIRTUAL_ENV $VIRTUAL_ENV
 
 RUN apt-get -y update \
     && apt-get install -y nodejs lbzip2 \
-    && apt-get install -y --no-install-recommends bash git curl unzip \
+    && apt-get install -y --no-install-recommends bash git curl unzip jq \
     && ln -sf python3 /usr/local/bin/python \
     && git config --global advice.detachedHead false \
     && tfenv install ${TERRAFORM_VERSION} \

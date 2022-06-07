@@ -47,7 +47,9 @@ RUN apt-get -y update \
     && git config --global advice.detachedHead false \
     && tfenv install ${TERRAFORM_VERSION} \
     && tfenv use ${TERRAFORM_VERSION} \
-    && tgswitch ${TERRAGRUNT_VERSION}
+    && if [[ "$TERRAGRUNT_VERSION" == "latest" ]]; then \
+        curl -s https://warrensbox.github.io/terragunt-versions-list/ | jq -r '.Versions[0]' | xargs -I {} tgswitch {}; \
+        else tgswitch "$TERRAGRUNT_VERSION"; fi
 
 COPY entrypoint.sh /tmp/entrypoint.sh
 

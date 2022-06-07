@@ -6,7 +6,8 @@ ARG GIT_CHGLOG_VERSION=0.14.2
 ARG SEMTAG_VERSION=0.1.1
 ARG GH_VERSION=2.2.0
 ARG TFENV_VERSION=2.2.2
-ARG TGENV_VERSION=0.0.3
+# defaults to installing latest
+ARG TGSWITCH_VERSION=""
 
 SHELL ["/bin/bash", "-c"]
 WORKDIR /src
@@ -32,7 +33,7 @@ ENV VIRTUAL_ENV=/opt/base-venv
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
-ENV PATH="/usr/local/.tfenv/bin:/usr/local/.tgenv/bin:$PATH"
+ENV PATH="/usr/local/.tfenv/bin:$PATH"
 # uses virtual env instead of system-wide packages
 ENV PATH="$VIRTUAL_ENV/bin:$VIRTUAL_ENV/lib/python3.9/site-packages:$PATH"
 
@@ -46,8 +47,7 @@ RUN apt-get -y update \
     && git config --global advice.detachedHead false \
     && tfenv install ${TERRAFORM_VERSION} \
     && tfenv use ${TERRAFORM_VERSION} \
-    && tgenv install ${TERRAGRUNT_VERSION} \
-    && tgenv use ${TERRAGRUNT_VERSION}
+    && tgswitch ${TERRAGRUNT_VERSION}
 
 COPY entrypoint.sh /tmp/entrypoint.sh
 

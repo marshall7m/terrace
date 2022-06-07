@@ -6,7 +6,7 @@ The root directory of this repository contains the configurations needed to buil
 
 ## Built-in
 - [tfenv](https://github.com/tfutils/tfenv)
-- [tgenv](https://github.com/cunymatthieu/tgenv)
+- [tgswitch](https://github.com/warrensbox/tgswitch)
 - [terraform](https://github.com/hashicorp/terraform) (version: latest)
 - [terragrunt](https://github.com/gruntwork-io/terragrunt) (version: latest)
 - [semtag](https://github.com/nico2sh/semtag)
@@ -24,4 +24,4 @@ Within both images within the multi-stage build, a set of build arguments are av
 
 ## Notes
 
-This image leverages the awesome Terraform binary manager tfenv and Terragrunt binary manager tgenv to install and manage both binary versions. Future installations of the binaries are recommended be installed via these managers to prevent `$PATH` complications.
+This image leverages the awesome Terraform binary manager tfenv and Terragrunt binary manager tgswitch to install and manage both binary versions. Future installations of the binaries are recommended be installed via these managers to prevent `$PATH` complications.

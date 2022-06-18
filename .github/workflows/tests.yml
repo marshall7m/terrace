@@ -36,7 +36,10 @@ jobs:
           apt-get -y update
           apt-get -y install --no-install-recommends wget git
           wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v${{ env.HADOLINT_VERSION }}/hadolint-Linux-arm64
-          chmod u+x /usr/local/bin/*
+          chmod u+x /usr/local/bin/hadolint
+
+          which hadolint
+          hadolint --version
           apt-get clean
           rm -rf /var/lib/apt/lists/*
 

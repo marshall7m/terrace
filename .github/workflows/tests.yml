@@ -26,25 +26,19 @@ on:
 jobs:
   precommit:
     runs-on: ubuntu-latest
-    container: python@sha256:fd2a096263003f8cf819029bb5c835d3bf12cb5fab070de3553c36c18a4c620c
-    env:
-      HADOLINT_VERSION: 2.10.0
+    container: ghcr.io/hadolint/hadolint:latest-debian
     steps:
       - name: Install Deps
         shell: bash
         run: |
           apt-get -y update
-          apt-get -y install --no-install-recommends wget git
-          wget -q -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v${{ env.HADOLINT_VERSION }}/hadolint-Linux-arm64
-          chmod u+x /usr/local/bin/hadolint
+          apt-get -y install --no-install-recommends wget git nodejs python3-pip
 
-          which hadolint
-          hadolint --version
           apt-get clean
           rm -rf /var/lib/apt/lists/*
 
           python3 -m pip install --upgrade pip
-          python3 -m pip install pre-commit 
+          python3 -m pip install pre-commit
       - uses: actions/checkout@v3
       - name: Hooks
         shell: bash

@@ -40,7 +40,7 @@ COPY --from=build $VIRTUAL_ENV $VIRTUAL_ENV
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008
 RUN apt-get -y update \
-    && apt-get install -y --no-install-recommends git curl nodejs lbzip2 jq \
+    && apt-get install -y --no-install-recommends git curl unzip nodejs lbzip2 jq \
     && ln -sf python3 /usr/local/bin/python \
     && git config --global advice.detachedHead false \
     && tfenv install "${TERRAFORM_VERSION}" \

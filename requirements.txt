@@ -12,3 +12,4 @@ tftest==1.6.2
 boto3==1.20.5
 requests==2.27.1
 PyGithub==1.55
+awscli==1.25.17

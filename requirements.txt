@@ -9,7 +9,7 @@ timeout-decorator==0.5.0
 pytest-terra-fixt==0.4.2
 
 tftest==1.6.2
-boto3==1.20.5
+awscli==1.25.17
+boto3==1.24.17
 requests==2.27.1
 PyGithub==1.55
-awscli==1.25.17

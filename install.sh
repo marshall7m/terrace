@@ -23,6 +23,8 @@ wget -q -O /tmp/git-chglog.tar.gz https://github.com/git-chglog/git-chglog/relea
 tar -zxf /tmp/git-chglog.tar.gz -C /tmp
 mv /tmp/git-chglog "$VIRTUAL_ENV"/bin/
 
+wget -q -O "$VIRTUAL_ENV"/bin/gh-md-toc https://raw.githubusercontent.com/ekalinin/github-markdown-toc/"${MARKDOWN_TOC}"/gh-md-toc
+
 wget -q -O /tmp/semtag.tar.gz https://github.com/nico2sh/semtag/archive/refs/tags/v"${SEMTAG_VERSION}".tar.gz
 tar -zxf /tmp/semtag.tar.gz -C /tmp
 mv /tmp/semtag-"${SEMTAG_VERSION}"/semtag "$VIRTUAL_ENV"/bin/

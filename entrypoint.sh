@@ -5,4 +5,4 @@ if [ -n "$ADDITIONAL_PATH" ]; then
     export PATH="$ADDITIONAL_PATH:$PATH"
 fi
 
-/bin/bash
+exec "$@"

@@ -12,4 +12,4 @@ tftest==v1.7.4
 awscli==1.25.17
 boto3==1.24.17
 requests==2.28.1
-PyGithub==1.55
+PyGithub==1.56
